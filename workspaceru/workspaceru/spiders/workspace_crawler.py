@@ -1,6 +1,18 @@
 import scrapy
 from scrapy_splash import SplashRequest
+from time import sleep
+from random import randint
 
+# Название
+# Сайт
+# Тел
+# Страна, город
+# Основной раздел (пример: Разработка сайтов)
+# Подраздел (пример: Сайт под ключ)
+# Описание (прим. Вёрстка адаптивных макетов в HTML/CSS/JS))
+# Рейтинг SEO-компаний
+# Рейтинг агентств контекстной рекламы
+# Рейтинг веб-студий 
 
 class WorkspaceCrawlerSpider(scrapy.Spider):
     name = 'workspace_crawler'
@@ -42,38 +54,13 @@ class WorkspaceCrawlerSpider(scrapy.Spider):
     
                 a_more = assert(splash:select("#loadMore"))
                 a_more:mouse_click()
-                assert(splash:wait(1))
+                assert(splash:wait(2))
             end
 
             splash:set_viewport_full()
             return splash:html()
         end  
     '''
-    
-    # <a 
-    #     href="javascript:void(0)" 
-    #     class="box-more__btn" 
-    #     id="loadMore" 
-    #     data-service-code="crm"
-    #     >
-    # Загрузить ещё
-    # </a>
-
-    # <a 
-    #     href="javascript:void(0)" 
-    #     class="box-more__btn" 
-    #     id="loadMore" 
-    #     data-service-code="crm" 
-    #     style="display: none;"
-    #     >
-    # Загрузить ещё
-    # </a>
-
-    # <div 
-    #     class="alert alert-success green-success"
-    #     >
-    # Все загрузили
-    # </div>
 
     def start_requests(self):
         yield SplashRequest(url="https://workspace.ru/contractors",
@@ -93,13 +80,39 @@ class WorkspaceCrawlerSpider(scrapy.Spider):
                 link = cat.xpath(".//a/@href").get()
                 link_name = cat.xpath(".//a/text()").get()
 
+                absolute_url = response.urljoin(link)
+
                 # yield {
                 #     'category_name': category_name,
                 #     'link_name': link_name,
                 #     'link': link,
                 # }
 
-                yield response.follow(url=link, callback=self.parse_cats, meta={'category_name': category_name})
+                # yield response.follow(url=link, callback=self.parse_cats, meta={'category_name': category_name})
+                yield SplashRequest(url=absolute_url,
+                                    callback=self.parse_cats,
+                                    endpoint='execute',
+                                    args={
+                                        'lua_source': self.load_more
+                                    },
+                                    meta={
+                                        'category_name': category_name,                                        
+                                    })
     
-    def parse_cats(self, responce):
-        pass
+    def parse_cats(self, response):
+        category_name = response.meta['category_name']
+        items = response.xpath("//div[@class='vacancies__card']")
+        for item in items:
+            item_link = item.xpath(".//div[@class='vacancies__card-info-title _companies']/a/@href").get()
+            item_name = item.xpath(".//div[@class='vacancies__card-info-title _companies']/a/@title").get()
+            absolute_url = response.urljoin(item_link)
+
+            sec = randint(50, 120)
+            sleep(sec)
+
+            yield{
+                'category_name': category_name,
+                'comand': item_name,
+                'link': absolute_url,                
+            }
+
