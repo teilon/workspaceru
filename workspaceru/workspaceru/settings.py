@@ -54,6 +54,9 @@ DOWNLOADER_MIDDLEWARES = {
     'scrapy_splash.SplashCookiesMiddleware': 723,
     'scrapy_splash.SplashMiddleware': 725,
     'scrapy.downloadermiddlewares.httpcompression.HttpCompressionMiddleware': 810,
+
+    'scrapy.downloadermiddelwares.useragent.UserAgentMiddleware': None,
+    'workspaceru.middlewares.UserAgentRotatorMiddleware':400,
 }
 
 DUPEFILTER_CLASS = 'scrapy_splash.SplashAwareDupeFilter'

@@ -21,10 +21,6 @@ class WorkspaceCrawlerSpider(scrapy.Spider):
 
     show_categories = '''
         function main(splash, args)
-            splash:on_request(function(request)
-                request:set_header('User-Agent', "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0")
-            end)
-
             url = args.url
             assert(splash:go(url))
             assert(splash:wait(1))
@@ -36,10 +32,6 @@ class WorkspaceCrawlerSpider(scrapy.Spider):
         function main(splash, args)
             splash.private_mode_enabled = false
   
-	        splash:on_request(function(request)
-  	            request:set_header('User-Agent', "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0")
-            end)
-
             url = args.url
             assert(splash:go(url))
             assert(splash:wait(1))
