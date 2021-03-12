@@ -1,5 +1,7 @@
 import scrapy
 from scrapy_splash import SplashRequest
+
+import logging
 from time import sleep
 from random import randint
 
